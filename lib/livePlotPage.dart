@@ -15,8 +15,8 @@ class _LivePlotPageState extends State<LivePlotPage> {
   double _parameter1 = 0.0;
   double _parameter2 = 0.0;
 
-  String ip = '192.168.1.104';
-  int port=80;
+  String ip = '192.168.1.104'; //edit it
+  int port=80; //edit it
 
   @override
   void initState() {
