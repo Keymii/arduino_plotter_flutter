@@ -1,11 +1,14 @@
 import socket               # Import socket module
+import errno
 import _thread
+import os
 from uuid import uuid4
 
 clientsockets = {}
 
 
 def on_new_client(clientsocket, addr, ind):
+    global clientsockets
     try:
         while True:
             msg = clientsocket.recv(1024)
@@ -21,10 +24,13 @@ def on_new_client(clientsocket, addr, ind):
         print("Closing connection from", addr)
         clientsockets.pop(ind)
         clientsocket.close()
+        if e.errno == errno.EPIPE:
+            clientsockets = {}
+            _thread.exit()
 
 
 s = socket.socket()         # Create a socket object
-host = "192.168.169.89"  # Get local machine name
+host = input("Enter host name: ")  # Get local machine name
 port = 8000                # Reserve a port for your service.
 
 s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
@@ -34,9 +40,13 @@ s.listen(5)                 # Now wait for client connection.
 print('Server started!')
 print('Waiting for clients...')
 while True:
-    c, addr = s.accept()     # Establish connection with client.
-    ind = uuid4()
-    clientsockets[ind] = c
-    print('Got connection from', addr)
-    _thread.start_new_thread(on_new_client, (c, addr, ind))
+    try:
+        c, addr = s.accept()     # Establish connection with client.
+        ind = uuid4()
+        clientsockets[ind] = c
+        print('Got connection from', addr)
+        _thread.start_new_thread(on_new_client, (c, addr, ind))
+    except Exception as e:
+        break
+_thread.exit()
 s.close()

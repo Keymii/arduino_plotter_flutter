@@ -5,7 +5,7 @@ import socket
 import time
 from random import randrange
 
-HOST = "192.168.169.89"
+HOST = "192.168.1.103"
 PORT = 8000
 
 # socket.AF_INET means we're using IPv4 ( IP version 4 )
@@ -20,7 +20,7 @@ x = 0
 y = 0
 while (True):
     s.send((str(x)+","+str(y)).encode('utf-8'))
-    x += 10
+    x += 0.2
     y = randrange(-100, 100)
     time.sleep(0.2)
 s.close()
