@@ -21,6 +21,6 @@ y = 0
 while (True):
     s.send((str(x)+","+str(y)).encode('utf-8'))
     x += 0.2
-    y = randrange(-100, 100)
+    y = 300 + randrange(-100, 100)
     time.sleep(0.2)
 s.close()

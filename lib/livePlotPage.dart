@@ -28,7 +28,8 @@ class _LivePlotPageState extends State<LivePlotPage> {
   bool isConnected = false;
   String machineStatus = "Machine Status: -";
   Color machineStatusColor = Colors.grey;
-  double thresh = 50;
+  double maxThresh = 500;
+  double minThresh = 200;
   int graphConc = 30;
 
   @override
@@ -68,15 +69,18 @@ class _LivePlotPageState extends State<LivePlotPage> {
   }
 
   void _handleDataReceived(dynamic datarcvd) {
-    _receivedData += utf8.decode(datarcvd);
+    _receivedData = utf8.decode(datarcvd);
     print("Data received: " + _receivedData);
+    arduinoStatus = "Connection Status: connected";
+    arduinoStatusColor = Colors.green;
+    isConnected = true;
     // Parse the received data to extract the two parameters
     List<String> parameters = _receivedData.split(',');
     if (parameters.length == 2) {
       _parameter1 = double.tryParse(parameters[0]) ?? 0.0;
       _parameter2 = double.tryParse(parameters[1]) ?? 0.0;
       data.add(Coordinate(_parameter1, _parameter2));
-      if (_parameter2 >= thresh || _parameter2 <= -thresh) {
+      if (_parameter2 >= maxThresh || _parameter2 <= minThresh) {
         machineStatus = "Machine Status: Danger";
         machineStatusColor = Colors.red;
       } else {
@@ -218,7 +222,8 @@ class _LivePlotPageState extends State<LivePlotPage> {
                     flex: 2,
                     child: TextFormField(
                       initialValue: ip,
-                      decoration: InputDecoration(hintText: "Server IP"),
+                      decoration: InputDecoration(
+                          hintText: "Server IP", label: Text("Server IP")),
                       onChanged: (value) => ip = value,
                     ),
                   ),
@@ -227,8 +232,9 @@ class _LivePlotPageState extends State<LivePlotPage> {
                     flex: 1,
                     child: TextFormField(
                       initialValue: port.toString(),
-                      decoration: InputDecoration(hintText: "Server port"),
-                      onChanged: (value) => int.tryParse(value) ?? 8000,
+                      decoration: InputDecoration(
+                          hintText: "Server port", label: Text("Server port")),
+                      onChanged: (value) => port = int.tryParse(value) ?? 8000,
                     ),
                   ),
                   const SizedBox(width: 5),
@@ -247,7 +253,33 @@ class _LivePlotPageState extends State<LivePlotPage> {
                   ),
                 ],
               ),
-              // Add your live plot widget here
+              Row(
+                children: [
+                  Expanded(
+                    flex: 3,
+                    child: TextFormField(
+                      initialValue: minThresh.toString(),
+                      decoration: const InputDecoration(
+                          hintText: "Min value", label: Text("Min value")),
+                      onChanged: (value) =>
+                          minThresh = double.tryParse(value) ?? minThresh,
+                      keyboardType: TextInputType.number,
+                    ),
+                  ),
+                  const SizedBox(width: 5),
+                  Expanded(
+                    flex: 3,
+                    child: TextFormField(
+                      initialValue: maxThresh.toString(),
+                      decoration: const InputDecoration(
+                          hintText: "Max Value", label: Text("Max value")),
+                      onChanged: (value) =>
+                          maxThresh = double.tryParse(value) ?? maxThresh,
+                      keyboardType: TextInputType.number,
+                    ),
+                  ),
+                ],
+              ),
             ],
           ),
         ),
